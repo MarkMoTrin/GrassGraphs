@@ -1,0 +1,104 @@
+% Script for unequal points correspondence. 
+
+shape_folder = './Datasets/2D/';
+shape_name = 'airplane.mat';
+
+% Load the shape.
+X = load([shape_folder, shape_name]); 
+X = X.x;
+
+% Number of points to subsample by.
+sub_sampling_rate = 8;
+num_points_shape = size(X,1);
+
+% Subsample the shape.
+Y = X(1 : sub_sampling_rate : end,:);
+
+% Get the Laplacian eigenvectors of length X_n and Y_n.
+
+% ----------------------------
+p.fhkt = 100;                   % For the full graph case, not used. 
+p.Epsilon = 0.012;              % Epsilon value. 
+p.hkt = 175;                    % Heat kernel value.
+p.GraphCase = 'epsilon';
+p.GraphLapType = 'heatKer';
+
+p.CorrMethod = 'minDistThrowOut';
+p.CondFac = 500;        
+p.GraphLapType = 'heatKer';
+p.NumLBOEvec = 5;               % Number of eigenvectors to compute. 
+
+p.EvecToMatch = [1, 2, 3];      % Eigenvectors used to match in the LBO space.
+
+p.DistScFac = 1e-4; 
+
+p.ScaleDist = 0; % May not be used. 
+
+p.ScType = 'maxScaling'; % Scaling type for distance matrix.
+
+% Resolving eigenvector flipping. 
+% Now we have to check which sign flip of the target shape eigenvectors
+% correponds to the closest of the eigenvectors of the source shape.
+% The extra -1 is because the number of eigenvectors chosen has the zero
+% vector contained in it so we remove it. The second -1 is to used to
+% generate the different permutations. This should genereate 8 different
+% combination of the three eigenvector flips.
+numEigVecForPerm = numel(p.EvecToMatch);
+p.AllPerms = dec2bin(2^(numEigVecForPerm) - 1: -1 : 0) - '0'; % All permutations.
+p.AllPerms(p.AllPerms == 0) = -1;   % Changing the zeros to -1s. 
+p.NumPerms = size(p.AllPerms,1);    % Number of permutations. 
+
+p.eigSc = 0;        % Scale the eigenvectors with the eigenvalues.
+
+p.CorrThresh = 3;
+
+p.ScoreType = 'NumCorr';
+
+% ------------------------------------------------
+
+% Check if X and Y are N x D. 
+[numXRow, numXCol] = size(X);
+if (numXRow < numXCol)
+    X = X';
+end
+
+[numYRow, numYCol] = size(Y);
+if (numYRow < numYCol)
+    Y = Y';
+end
+
+%% Flags.
+plotLBO = 1;   % Display the LBO eigenvectors.
+
+debugMode = 0; % Shows the individual eigenvector flips. 
+
+dispEigVals = 0;
+
+%% Mean subtraction cases. 
+[UX, UY] = grassmannianRepresentation(X, Y);
+
+
+%% Display U eigenvector output. 
+
+% Plot U eigenvectors.
+if (plotUVecs == 1)
+    plot2D3DShapes_Clean(UX,UY, {'UX', 'UY'}, 'U Eigenvectors', 'northeast');
+end
+
+%% Graph Laplacian. 
+
+% Form the epsilon-graph and its graph Laplacian.
+LX = graphLaplacian_Clean(UX, p);
+LY = graphLaplacian_Clean(UY, p);     
+
+% Set a range of scale values and search for correspondence.
+
+% Look at the scaled shapes and see if playing with s produces easier
+% slopes
+
+% Check the scaling of each eigenvector.
+
+% How do the number of connections in the graph affect the eigenvectors. 
+
+% Change the level of subsampling and show eigvectors. 
+
