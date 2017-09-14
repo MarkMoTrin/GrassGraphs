@@ -1,51 +1,88 @@
 % Script for unequal points correspondence. 
-clc; clear all; close all;
+clc; clear; close all;
 
 shape_folder = './Datasets/2D/';
 shape_name = 'airplane.mat';
+im_fold = 'C:\Users\mmoyou\Dropbox\Pami_revision\imgs_unequal_points\';
+
+%% Print im flags.
+print_flag_orig = 1; 
+print_flag_UVecs = 0; 
+
+apply_affine = 1;
+
+generate_Y = 1;
+partial_Y = 0;
+
+num_partial_points = 100;
+
+sub_sampling_rate = 1;
+start_ind_sub_samp = 1;
+
+%% Loading and plotting the shapes. 
 
 % Load the shape.
 X = load([shape_folder, shape_name]); 
 X = X.x;
+X = resizeShapesToSquareGrid(X, 10);
 
 % Number of points to subsample by.
-sub_sampling_rate = 2;
 num_points_shape = size(X,1);
 
-% Subsample the shape.
-Y = X(1 : sub_sampling_rate : end,:);
+if (partial_Y == 1)
+    Y = X(start_ind_sub_samp : start_ind_sub_samp + sub_sampling_rate, :);
+    num_points_Y = size(Y,1);
+else
+    % Subsample the shape.
+    Y = X(1 : sub_sampling_rate : end,:);
+    num_points_Y = size(Y,1);
+end
 
-figure;
+fOrig = figure;
 movegui(gcf, 'northwest');
 plot(X(:, 1), X(:, 2), 'ro', 'Markersize',6); hold on;
 plot(Y(:, 1), Y(:, 2), 'b.', 'Markersize',5)
-title(['Original shapes sampling rate ', num2str(sub_sampling_rate)]);
+title(['|X| = ', num2str(num_points_shape), ', |Y| = ', num2str(size(Y,1))]);
+legend('X', 'Y');
 % plot2D3DShapes_Clean(Y, X, {'Y', 'X'}, 'Original shapes', 'northwest');
 % Get the Laplacian eigenvectors of length X_n and Y_n.
 
+if (print_flag_orig == 1)
+    fOrig_name = ['Subsample_X_', num2str(num_points_shape), '_Y_',num2str(num_points_Y)];
+    print([im_fold, fOrig_name],'-depsc','-tiff');
+    saveas(fOrig, [im_fold, fOrig_name, '.jpg'])
+end    
 %% ----------------------------------
-% % Setup an affine transformation. 
-% theta = 0;      % Rotation angle 1. 
-% sigma = pi/2;   % Rotation angle 2.
-% a = 3;      % Scale in the x direction. 
-% b = 1;      % Scale in the y direction. 
-% tx = 0;     % Translation in x. 
-% ty = 0;     % Translation in y. 
-% 
-% tVec = [tx, ty];
-% % Generate an affine transformation. 
-% A = affineTransformation2D_Clean(theta, sigma, tVec, a, b);
-% 
-% numShPoints = size(X,1); % Number of shape points. 
-% Xh = [X ones(size(X,1),1)]; % Homogeneous representation of X. 
-% Y = Xh*A; % Apply the affine to create Y. 
-% Y = Y(:,1:2);  % Keep only the first 2 dimensions. 
 
+if (apply_affine == 1)
+    % Setup an affine transformation. 
+    theta = 0;      % Rotation angle 1. 
+    sigma = pi/2;   % Rotation angle 2.
+    a = 3;      % Scale in the x direction. 
+    b = 1;      % Scale in the y direction. 
+    tx = 0;     % Translation in x. 
+    ty = 0;     % Translation in y. 
+
+    tVec = [tx, ty];
+    % Generate an affine transformation. 
+    A = affineTransformation2D_Clean(theta, sigma, tVec, a, b);
+    
+    if (generate_Y == 1)
+        num_shape_points = size(X,1);
+        Xh = [X ones(size(X,1),1)]; % Homogeneous representation of X. 
+        Y = Xh*A; % Apply the affine to create Y. 
+        Y = Y(:,1:2);  % Keep only the first 2 dimensions.
+    else
+        Yh = [Y ones(size(Y,1),1)]; % Homogeneous representation of X. 
+        Y = Yh*A; % Apply the affine to create Y. 
+        Y = Y(:,1:2);  % Keep only the first 2 dimensions. 
+    end
+end
 %% ----------------------------
 
 X_p = 0.012;
 Y_p = 0.012;
-X_scale_fac = 1.3;
+X_scale_fac = 1;
 
 p.fhkt = 100;                   % For the full graph case, not used. 
 p.Epsilon = 0.012;              % Epsilon value. 
@@ -114,6 +151,12 @@ dispEigVals = 0;
 if (plotUVecs == 1)
     plot2D3DShapes_Clean(UX,UY, {'UX', 'UY'}, 'U Eigenvectors', 'north');
 end
+
+view([-1, 90]);
+if (print_flag_UVecs == 1)
+    fUVec_name = ['UVecs', num2str(num_points_shape), '_Y_',num2str(num_points_Y)];
+    print([im_fold, fUVec_name],'-depsc','-tiff');
+end 
 
 %% Graph Laplacian. 
 
