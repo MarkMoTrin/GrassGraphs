@@ -105,7 +105,6 @@ Xh = [X ones(size(X,1),1)]; % Homogeneous representation of X.
 Y = Xh*A; % Apply the affine to create Y. 
 Y = Y(:,1:2);  % Keep only the first 2 dimensions. 
 
-
 % Y = Y(1 : subsampling_rate : end, :);
 num_subsampled_points = round(size(Y,1)*subsampling_rate/100);
 Y = Y(1 : num_subsampled_points,:);

@@ -33,7 +33,7 @@ if (numYRow < numYCol)
 end
 
 %% Flags.
-plotLBO = 1;   % Display the LBO eigenvectors.
+plotLBO = 0;   % Display the LBO eigenvectors.
 
 debugMode = 0; % Shows the individual eigenvector flips. 
 

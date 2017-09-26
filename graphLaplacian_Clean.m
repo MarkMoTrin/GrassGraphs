@@ -54,7 +54,13 @@
 function L = graphLaplacian_Clean(data, p)
 
 A = pdist2(data, data).^2;    % Squared distance matrix.
+% figure; hist(A(:)); movegui(gcf,'west');
+
+epsilon = adaptive_histogram_epsilon(A, p.s);
+p.Epsilon = epsilon;
+
 A(A > p.Epsilon) = 0;       % Create the epsilon graph. 
+% figure; surf(A); view(0,90);
 A = sparse(A);              % Euclidean distance weighted adjacency matrix. 
 connPos = logical(A == 0);  % Connection positions.
 
