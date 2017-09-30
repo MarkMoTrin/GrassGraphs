@@ -10,11 +10,11 @@ num_imgs = length(dir_cont);
 
 %% Create an affine. 
 
-affine_number = 15;
+affine_number = 36;
 
-sigma = -pi/2;  % Rotation angle 2.
-a = 1;      % Scale in the x direction. 
-b = -2;      % Scale in the y direction. 
+sigma = pi/0.97;  % Rotation angle 2.
+a = -2.3;      % Scale in the x direction. 
+b = -0.5;      % Scale in the y direction. 
 theta = 0;      % Rotation angle 1
 tx = 0;     % Translation in x. 
 ty = 0;     % Translation in y. 
@@ -29,7 +29,7 @@ p = grassGraphsParams_Clean; % GrassGraphs parameters.
 p.s = 0.7
 % p.Epsilon = 0.12;
 p.Epsilon = 0.7;
-p.num_X_points = 150;
+p.num_X_points = 75;
 p.resize_val = 10;
 
 p.plotU = 0;

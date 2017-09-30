@@ -47,10 +47,11 @@ p.eigSc = 0;        % Scale the eigenvectors with the eigenvalues.
 p.CorrThresh = 3;
 
 p.ScoreType = 'NumCorr';
+p.s = 0.7
 %% Print im flags.
 print_flag_orig = 0; 
 print_flag_UVecs = 0; 
-print_flag_LBO = 1; 
+print_flag_LBO = 0; 
 
 dispEigVals = 0;
 plot_U_vecs = 1;
